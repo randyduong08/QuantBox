@@ -1,4 +1,12 @@
 import {JSX, useEffect, useState} from 'react';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
+
 
 const BlackScholesCalculator = (): JSX.Element => {
     // state for input parameters -- useState ~= angular signals
@@ -49,8 +57,40 @@ const BlackScholesCalculator = (): JSX.Element => {
 
     return (
         <>
-            <p>Calc</p>
             {/*TODO -- UI to set states here*/}
+            <Card className={"bg-gray-900 text-white shadow-lg w-full max-w-6xl mx-auto"}>
+                <CardHeader>
+                    <CardTitle className={"text-3xl font-bold"}>Black-Scholes Pricing Model</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {/* current asset price */}
+                    <div className={"asset-price-section"}>
+                        <div className={"space-y-2"}>
+                            <label className={"block font-medium"}>Current Asset Price</label>
+                            <div className={"relative"}>
+                                <input
+                                    type={"number"}
+                                    value={spotPrice}
+                                    onChange={(e) => setSpotPrice(parseFloat(e.target.value))}
+                                    className={"w-full bg-gray-800 rounded px-3 py-2 text-right"}
+                                />
+                            </div>
+                        </div>
+                        <Slider
+                            value={[spotPrice]}
+                            min={10}
+                            max={200}
+                            step={1}
+                            onValueChange={(e) => setSpotPrice(e[0])}
+                            className={"w-full"}
+                        />
+                        <div className={"flex justify-between text-xs"}>
+                            <span>10.00</span>
+                            <span>200.00</span>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </>
     )
 }

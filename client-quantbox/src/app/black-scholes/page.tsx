@@ -5,7 +5,6 @@ import BlackScholesCalculator from "@/components/black-scholes-calculator/black-
 export default function BlackScholesPage() {
     return (
         <>
-            <p>Testing scholes</p>
             <BlackScholesCalculator/>
         </>
     )
