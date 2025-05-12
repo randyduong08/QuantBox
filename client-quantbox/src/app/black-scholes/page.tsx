@@ -2,6 +2,8 @@ import Head from "next/head";
 import BlackScholesCalculator from "@/components/black-scholes-calculator/black-scholes-calculator";
 
 export default function BlackScholesPage() {
+    // TODO -- WORK ON THIS -- MAKE NAVBAR BETTER, ETC -> IMPLEMENTING AS A SIDEBAR COMPONENT IN QUANTBOX-SIDERBAR, TO BE USED IN GLOBAL LAYOUT.
+    // TODO -- CONT... SIDEBAR IS FOR GLOBAL STUFF, NAVBAR WILL BE FOR SPECIFIC SEMANTICALLY-RELATED STUFF
     return (
         <>
             <div className={"min-h-screen bg-gray-900"}>
