@@ -4,7 +4,7 @@ import BlackScholesCalculator from "@/components/black-scholes-calculator/black-
 export default function BlackScholesPage() {
     // TODO -- WORK ON THIS -- MAKE NAVBAR BETTER, ETC -> IMPLEMENTING AS A SIDEBAR COMPONENT IN QUANTBOX-SIDERBAR, TO BE USED IN GLOBAL LAYOUT.
     // TODO -- CONT... SIDEBAR IS FOR GLOBAL STUFF, NAVBAR WILL BE FOR SPECIFIC SEMANTICALLY-RELATED STUFF
-    // TODO -- CURR ISSUE -> NO SCROLLBAR WHEN CONTENT EXTENDS PAST VIEWPORT OF MONITOR
+    // TODO -- CURR THING -> SIDEBAR IS BASICALLY DONE, NOW SWITCH HEADER TO MORE STYLISH TOP NAVBAR
     return (
         <>
             <div className={"min-h-screen bg-gray-900 w-full"}>

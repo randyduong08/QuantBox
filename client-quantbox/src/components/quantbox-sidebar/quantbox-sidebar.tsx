@@ -40,7 +40,7 @@ export function QuantboxSidebar({children}: Readonly<{children: React.ReactNode;
 
     return(
         <>
-            <div className={cn("mx-auto flex w-full flex-1 flex-col overflow-hidden rounded-md border border-neutral-200 bg-gray-100 md:flex-row dark:border-neutral-700 dark:bg-neutral-800", "h-screen")}>
+            <div className={cn("mx-auto flex w-full flex-1 rounded-md border border-neutral-200 bg-gray-100 md:flex-row dark:border-neutral-700 dark:bg-neutral-800", "h-screen")}>
                 <Sidebar open={open} setOpen={setOpen}>
                     <SidebarBody className={"justify-between gap-10"}>
                         <div className={"flex flex-1 flex-col overflow-x-hidden overflow-y-auto"}>
@@ -51,7 +51,9 @@ export function QuantboxSidebar({children}: Readonly<{children: React.ReactNode;
                         </div>
                     </SidebarBody>
                 </Sidebar>
-                {children}
+                <div className={"flex-1 overflow-y-auto"}>
+                    {children}
+                </div>
             </div>
         </>
     );
