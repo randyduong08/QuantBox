@@ -4,9 +4,10 @@ import BlackScholesCalculator from "@/components/black-scholes-calculator/black-
 export default function BlackScholesPage() {
     // TODO -- WORK ON THIS -- MAKE NAVBAR BETTER, ETC -> IMPLEMENTING AS A SIDEBAR COMPONENT IN QUANTBOX-SIDERBAR, TO BE USED IN GLOBAL LAYOUT.
     // TODO -- CONT... SIDEBAR IS FOR GLOBAL STUFF, NAVBAR WILL BE FOR SPECIFIC SEMANTICALLY-RELATED STUFF
+    // TODO -- CURR ISSUE -> NO SCROLLBAR WHEN CONTENT EXTENDS PAST VIEWPORT OF MONITOR
     return (
         <>
-            <div className={"min-h-screen bg-gray-900"}>
+            <div className={"min-h-screen bg-gray-900 w-full"}>
                 <Head>
                     <title>QuantBox - Black-Scholes Model</title>
                     <meta name={"description"} content={"Interactive Black-Scholes option pricing calculator"}/>
@@ -25,13 +26,15 @@ export default function BlackScholesPage() {
                             </div>
                         </div>
                         <div>
-                            <button className={"bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"}>Settings</button>
+                            <button
+                                className={"bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"}>Settings
+                            </button>
                         </div>
                     </nav>
                 </header>
 
                 <main className={"container mx-auto py-8 px-4"}>
-                    <BlackScholesCalculator />
+                    <BlackScholesCalculator/>
                 </main>
 
                 <footer className={"py-6 px-4 bg-gray-800 text-center text-gray-400"}>

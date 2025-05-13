@@ -12,15 +12,15 @@ import { Slider } from "@/components/ui/slider";
 
 const BlackScholesCalculator = (): JSX.Element => {
     // state for input parameters -- useState ~= angular signals
-    const [spotPrice, setSpotPrice] = useState(100);
-    const [strikePrice, setStrikePrice] = useState(100);
-    const [timeToMaturity, setTimeToMaturity] = useState(100);
-    const [volatility, setVolatility] = useState(0.25);
-    const [riskFreeRate, setRiskFreeRate] = useState(0.05);
+    const [spotPrice, setSpotPrice] = useState<number>(100);
+    const [strikePrice, setStrikePrice] = useState<number>(100);
+    const [timeToMaturity, setTimeToMaturity] = useState<number>(100);
+    const [volatility, setVolatility] = useState<number>(0.25);
+    const [riskFreeRate, setRiskFreeRate] = useState<number>(0.05);
 
     // state for calculated values
-    const [callPrice, setCallPrice] = useState(0);
-    const [putPrice, setPutPrice] = useState(0);
+    const [callPrice, setCallPrice] = useState<number>(0);
+    const [putPrice, setPutPrice] = useState<number>(0);
 
     // func to calculate black-scholes options prices
     const calculateOptionPrices = (): void => {
