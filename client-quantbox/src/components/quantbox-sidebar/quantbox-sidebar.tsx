@@ -22,7 +22,7 @@ export function QuantboxSidebar({children}: Readonly<{children: React.ReactNode;
         },
         {
             label: "Black-Scholes",
-            href: "#",
+            href: "/black-scholes/options-calculator",
             icon: ("📊")
         },
         {
