@@ -1,31 +1,13 @@
 'use client';
 
 import {JSX, useEffect, useState} from "react";
-import {BlackScholesField, BlackScholesFields, OptionType} from "@/types/black-scholes-fields";
+import {BlackScholesField, OptionType} from "@/types/black-scholes-fields";
 import GreeksFields, {GreeksDataPoint} from "@/types/greeks-fields";
 import {CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
+import {useBlackScholesStore} from "@/store/black-scholes-store";
 
-interface GreeksVisualizationPageProps {
-    params?: BlackScholesFields;
-}
-
-export default function GreeksVisualizationPage({ params = {
-    spotPrice: 0,
-    strikePrice: 0,
-    timeToMaturity: 0,
-    volatility: 0,
-    riskFreeRate: 0,
-    optionType: OptionType.Call,
-} }: GreeksVisualizationPageProps ): JSX.Element {
-    // default parameters for black-scholes model
-    const [blackScholesFields, setParams] = useState<BlackScholesFields>({
-        spotPrice: params.spotPrice || 100,
-        strikePrice: params.strikePrice || 100,
-        timeToMaturity: params.timeToMaturity || 1.0,
-        volatility: params.volatility || 0.25,
-        riskFreeRate: params.riskFreeRate || 0.05,
-        optionType: params.optionType || OptionType.Call
-    });
+export default function GreeksVisualizationPage(): JSX.Element {
+    const blackScholesFields = useBlackScholesStore();
 
     // state for chart data
     const [greeksData, setGreeksData] = useState<GreeksDataPoint[]>([]);
@@ -120,8 +102,24 @@ export default function GreeksVisualizationPage({ params = {
     }, [blackScholesFields]);
 
     // handle parameter changes
-    const handleParamChange = (param: BlackScholesField, value: number | OptionType) => {
-        setParams({...blackScholesFields, [param]: value});
+    const handleParamChange = (field: BlackScholesField, value: number | OptionType) => {
+        switch (field) {
+            case BlackScholesField.StrikePrice:
+                useBlackScholesStore.setState({ strikePrice: Number(value)});
+                break;
+            case BlackScholesField.TimeToMaturity:
+                useBlackScholesStore.setState({ timeToMaturity: Number(value) });
+                break;
+            case BlackScholesField.Volatility:
+                useBlackScholesStore.setState({ volatility: Number(value) });
+                break;
+            case BlackScholesField.RiskFreeRate:
+                useBlackScholesStore.setState({ riskFreeRate: Number(value) });
+                break;
+            case BlackScholesField.OptionType:
+                useBlackScholesStore.setState({ optionType: value as OptionType });
+                break;
+        }
     };
 
 

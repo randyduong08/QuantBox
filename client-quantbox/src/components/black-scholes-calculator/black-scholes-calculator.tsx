@@ -8,15 +8,24 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { useBlackScholesStore } from "@/store/black-scholes-store";
 
 
 const BlackScholesCalculator = (): JSX.Element => {
     // state for input parameters -- useState ~= angular signals
-    const [spotPrice, setSpotPrice] = useState<number>(100);
-    const [strikePrice, setStrikePrice] = useState<number>(100);
-    const [timeToMaturity, setTimeToMaturity] = useState<number>(100);
-    const [volatility, setVolatility] = useState<number>(0.25);
-    const [riskFreeRate, setRiskFreeRate] = useState<number>(0.05);
+    // CORRECTION: now using zustand store (instead of useState) for state
+    const {
+        spotPrice,
+        strikePrice,
+        timeToMaturity,
+        volatility,
+        riskFreeRate,
+        setSpotPrice,
+        setStrikePrice,
+        setTimeToMaturity,
+        setVolatility,
+        setRiskFreeRate,
+    } = useBlackScholesStore();
 
     // state for calculated values
     const [callPrice, setCallPrice] = useState<number>(0);

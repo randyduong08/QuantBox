@@ -4,7 +4,7 @@ export type BlackScholesFields = {
     timeToMaturity: number;
     volatility: number;
     riskFreeRate: number;
-    optionType: OptionType
+    optionType: OptionType;
 }
 
 export enum BlackScholesField {
