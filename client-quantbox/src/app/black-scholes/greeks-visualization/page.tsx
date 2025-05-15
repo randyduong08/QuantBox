@@ -1,25 +1,38 @@
 'use client';
 
-import {useState, useEffect, JSX} from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {JSX, useEffect, useState} from "react";
+import {BlackScholesField, BlackScholesFields, OptionType} from "@/types/black-scholes-fields";
+import GreeksFields, {GreeksDataPoint} from "@/types/greeks-fields";
+import {CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 
-export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Element {
+interface GreeksVisualizationPageProps {
+    params?: BlackScholesFields;
+}
+
+export default function GreeksVisualizationPage({ params = {
+    spotPrice: 0,
+    strikePrice: 0,
+    timeToMaturity: 0,
+    volatility: 0,
+    riskFreeRate: 0,
+    optionType: OptionType.Call,
+} }: GreeksVisualizationPageProps ): JSX.Element {
     // default parameters for black-scholes model
-    const [params, setParams] = useState({
-        spotPrice: defaultParams.spotPrice || 100,
-        strikePrice: defaultParams.strikePrice || 100,
-        timeToMaturity: defaultParams.timeToMaturity || 1.0,
-        volatility: defaultParams.volatility || 0.25,
-        riskFreeRate: defaultParams.riskFreeRate || 0.05,
-        optionType: defaultParams.optionType || 'call'
+    const [blackScholesFields, setParams] = useState<BlackScholesFields>({
+        spotPrice: params.spotPrice || 100,
+        strikePrice: params.strikePrice || 100,
+        timeToMaturity: params.timeToMaturity || 1.0,
+        volatility: params.volatility || 0.25,
+        riskFreeRate: params.riskFreeRate || 0.05,
+        optionType: params.optionType || OptionType.Call
     });
 
     // state for chart data
-    const [greeksData, setGreeksData] = useState([]);
+    const [greeksData, setGreeksData] = useState<GreeksDataPoint[]>([]);
 
     // calculate greeks for different spot prices
     const calculateGreeksData = () => {
-        const { strikePrice, timeToMaturity, volatility, riskFreeRate, optionType } = params;
+        const { strikePrice, timeToMaturity, volatility, riskFreeRate, optionType } = blackScholesFields;
         const priceRange = strikePrice * 0.5; // 50% range
         const minPrice = strikePrice - priceRange;
         const maxPrice = strikePrice + priceRange;
@@ -29,8 +42,8 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
         const newData = [];
 
         for (let i = 0; i <= steps; i++) {
-            const spotPrice = minPrice + i * stepSize;
-            const greeks = calculateGreeks(spotPrice, strikePrice, riskFreeRate, volatility, timeToMaturity, optionType);
+            const spotPrice: number = minPrice + i * stepSize;
+            const greeks: GreeksFields = calculateGreeks(spotPrice, strikePrice, riskFreeRate, volatility, timeToMaturity, optionType);
 
             newData.push({
                spotPrice,
@@ -46,7 +59,7 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
     };
 
     // calculate greeks based on black-scholes model
-    const calculateGreeks = (S: number, K: number, r: number, v: number, T: number, type: string) => {
+    const calculateGreeks = (S: number, K: number, r: number, v: number, T: number, type: string): GreeksFields => {
         if (T <= 0 || v <= 0) {
             return {
                 delta: 0,
@@ -76,19 +89,19 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
         };
 
         // greeks calculations
-        const delta: number = type === 'call'
+        const delta: number = type === OptionType.Call
             ? 1 - cdf(-d1)
             : cdf(-d1) - 1;
 
         const gamma: number = pdf(d1) / (S * v * Math.sqrt(T));
 
-        const theta: number = type === 'call'
+        const theta: number = type === OptionType.Call
             ? (-S * pdf(d1) * v / (2 * Math.sqrt(T)) - r * K * Math.exp(-r * T) * (1 - cdf(-d2))) / 365
             : (-S * pdf(d1) * v / (2 * Math.sqrt(T)) + r * K * Math.exp(-r * T) * cdf(-d2)) / 365;
 
         const vega: number = S * Math.sqrt(T) * pdf(d1) / 100;
 
-        const rho: number = type === 'call'
+        const rho: number = type === OptionType.Call
             ? K * T * Math.exp(-r * T) * (1 - cdf(-d2)) / 100
             : -K * T * Math.exp(-r * T) * cdf(-d2) / 100;
 
@@ -104,11 +117,11 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
     // update chart data when params change
     useEffect(() => {
         calculateGreeksData();
-    }, [params]);
+    }, [blackScholesFields]);
 
     // handle parameter changes
-    const handleParamChange = (param, value) => {
-        setParams({...params, [param]: value});
+    const handleParamChange = (param: BlackScholesField, value: number | OptionType) => {
+        setParams({...blackScholesFields, [param]: value});
     };
 
 
@@ -122,12 +135,12 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
                     <div className="space-y-2">
                         <label className="block text-sm font-medium">Option Type</label>
                         <select
-                            value={params.optionType}
-                            onChange={(e) => handleParamChange('optionType', e.target.value)}
+                            value={blackScholesFields.optionType}
+                            onChange={(e) => handleParamChange(BlackScholesField.OptionType, e.target.value as OptionType)}
                             className="w-full bg-gray-800 rounded px-3 py-2"
                         >
-                            <option value="call">Call</option>
-                            <option value="put">Put</option>
+                            <option value={OptionType.Call}>Call</option>
+                            <option value={OptionType.Put}>Put</option>
                         </select>
                     </div>
 
@@ -136,8 +149,8 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
                         <label className="block text-sm font-medium">Strike Price</label>
                         <input
                             type="number"
-                            value={params.strikePrice}
-                            onChange={(e) => handleParamChange('strikePrice', parseFloat(e.target.value))}
+                            value={blackScholesFields.strikePrice}
+                            onChange={(e) => handleParamChange(BlackScholesField.StrikePrice, parseFloat(e.target.value))}
                             className="w-full bg-gray-800 rounded px-3 py-2"
                         />
                     </div>
@@ -147,8 +160,8 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
                         <label className="block text-sm font-medium">Time (Years)</label>
                         <input
                             type="number"
-                            value={params.timeToMaturity}
-                            onChange={(e) => handleParamChange('timeToMaturity', parseFloat(e.target.value))}
+                            value={blackScholesFields.timeToMaturity}
+                            onChange={(e) => handleParamChange(BlackScholesField.TimeToMaturity, parseFloat(e.target.value))}
                             className="w-full bg-gray-800 rounded px-3 py-2"
                             step="0.1"
                         />
@@ -159,9 +172,9 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
                         <label className="block text-sm font-medium">Volatility (σ)</label>
                         <input
                             type="number"
-                            value={params.volatility}
-                            onChange={(e) => handleParamChange('volatility', parseFloat(e.target.value))}
+                            value={blackScholesFields.volatility}
                             className="w-full bg-gray-800 rounded px-3 py-2"
+                            onChange={(e) => handleParamChange(BlackScholesField.Volatility, parseFloat(e.target.value))}
                             step="0.01"
                         />
                     </div>
@@ -171,8 +184,8 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
                         <label className="block text-sm font-medium">Risk-Free Rate</label>
                         <input
                             type="number"
-                            value={params.riskFreeRate}
-                            onChange={(e) => handleParamChange('riskFreeRate', parseFloat(e.target.value))}
+                            value={blackScholesFields.riskFreeRate}
+                            onChange={(e) => handleParamChange(BlackScholesField.RiskFreeRate, parseFloat(e.target.value))}
                             className="w-full bg-gray-800 rounded px-3 py-2"
                             step="0.01"
                         />
@@ -200,7 +213,10 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
                                         label={{value: 'Delta', angle: -90, position: 'insideLeft', fill: '#ccc'}}
                                     />
                                     <Tooltip
-                                        formatter={(value) => [value.toFixed(4), 'Delta']}
+                                        formatter={(value: number | string) => {
+                                            const numericValue = typeof value === 'number' ? value : parseFloat(value);
+                                            return [numericValue.toFixed(4), 'Delta'];
+                                        }}
                                         labelFormatter={(value) => `Spot Price: $${value.toFixed(2)}`}
                                     />
                                     <Line
@@ -234,7 +250,10 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
                                         label={{value: 'Gamma', angle: -90, position: 'insideLeft', fill: '#ccc'}}
                                     />
                                     <Tooltip
-                                        formatter={(value) => [value.toFixed(4), 'Gamma']}
+                                        formatter={(value: number | string) => {
+                                            const numericValue = typeof value === 'number' ? value : parseFloat(value);
+                                            return [numericValue.toFixed(4), 'Gamma'];
+                                        }}
                                         labelFormatter={(value) => `Spot Price: $${value.toFixed(2)}`}
                                     />
                                     <Line
@@ -273,7 +292,10 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
                                         }}
                                     />
                                     <Tooltip
-                                        formatter={(value) => [`$${value.toFixed(4)}`, 'Theta (daily)']}
+                                        formatter={(value: number | string) => {
+                                            const numericValue = typeof value === 'number' ? value: parseFloat(value);
+                                            return [`$${numericValue.toFixed(4)}`, 'Theta (daily)'];
+                                        }}
                                         labelFormatter={(value) => `Spot Price: $${value.toFixed(2)}`}
                                     />
                                     <Line
@@ -307,7 +329,10 @@ export default function GreeksVisualizationPage(defaultParams = {} ): JSX.Elemen
                                         label={{value: 'Vega', angle: -90, position: 'insideLeft', fill: '#ccc'}}
                                     />
                                     <Tooltip
-                                        formatter={(value) => [`$${value.toFixed(4)}`, 'Vega']}
+                                        formatter={(value: number | string) => {
+                                            const numericValue = typeof value === 'number' ? value : parseFloat(value);
+                                            return [`$${numericValue.toFixed(4)}`, 'Vega'];
+                                        }}
                                         labelFormatter={(value) => `Spot Price: $${value.toFixed(2)}`}
                                     />
                                     <Line
