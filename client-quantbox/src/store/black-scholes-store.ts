@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 import { BlackScholesFields, OptionType } from "@/types/black-scholes-fields";
 
 interface BlackScholesState extends BlackScholesFields {
@@ -11,7 +12,7 @@ interface BlackScholesState extends BlackScholesFields {
     setBlackScholesFields: (fields: BlackScholesFields) => void;
 }
 
-export const useBlackScholesStore = create<BlackScholesState>((set) => ({
+export const useBlackScholesStore = create<BlackScholesState>()(devtools((set) => ({
     spotPrice: 100,
     strikePrice: 100,
     timeToMaturity: 1,
@@ -26,5 +27,7 @@ export const useBlackScholesStore = create<BlackScholesState>((set) => ({
     setRiskFreeRate: (riskFreeRate: number) => set({ riskFreeRate }),
     setOptionType: (optionType: OptionType) => set({ optionType }),
     setBlackScholesFields: (fields: BlackScholesFields) => set(fields),
+}), {
+    name: 'BlackScholesStore',
 }));
 
