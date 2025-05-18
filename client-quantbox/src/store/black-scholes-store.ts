@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { BlackScholesFields, OptionType } from "@/types/black-scholes-fields";
 
-interface BlackScholesState extends BlackScholesFields {
+export interface BlackScholesState extends BlackScholesFields {
     setSpotPrice: (spotPrice: number) => void;
     setStrikePrice: (strikePrice: number) => void;
     setTimeToMaturity: (timeToMaturity: number) => void;
