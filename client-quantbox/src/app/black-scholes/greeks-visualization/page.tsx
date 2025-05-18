@@ -3,6 +3,7 @@
 import {JSX, useEffect, useState} from "react";
 import {BlackScholesField, OptionType} from "@/types/black-scholes-fields";
 import GreeksFields, {GreeksDataPoint} from "@/types/greeks-fields";
+import {calculateGreeks} from "@/lib/black-scholes-utils";
 import {CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import {useBlackScholesStore} from "@/store/black-scholes-store";
 
@@ -38,62 +39,6 @@ export default function GreeksVisualizationPage(): JSX.Element {
         }
 
         setGreeksData(newData);
-    };
-
-    // calculate greeks based on black-scholes model
-    const calculateGreeks = (S: number, K: number, r: number, v: number, T: number, type: string): GreeksFields => {
-        if (T <= 0 || v <= 0) {
-            return {
-                delta: 0,
-                gamma: 0,
-                theta: 0,
-                vega: 0,
-                rho: 0
-            };
-        }
-
-        // calculate d1 and d2
-        const d1: number = (Math.log(S / K) + (r + 0.5 * v * v) * T) / (v * Math.sqrt(T));
-        const d2: number = d1 - v * Math.sqrt(T);
-
-        // standard normal CDF
-        const cdf = (x: number) => {
-            const t: number = 1.0 / (1.0 + 0.2316419 * Math.abs(x));
-            const d: number = 0.3989423 * Math.exp(-x * x / 2);
-            let p: number = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
-            if (x > 0) p = 1 - p;
-            return p;
-        };
-
-        // standard normal PDF
-        const pdf = (x: number) => {
-            return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
-        };
-
-        // greeks calculations
-        const delta: number = type === OptionType.Call
-            ? 1 - cdf(-d1)
-            : cdf(-d1) - 1;
-
-        const gamma: number = pdf(d1) / (S * v * Math.sqrt(T));
-
-        const theta: number = type === OptionType.Call
-            ? (-S * pdf(d1) * v / (2 * Math.sqrt(T)) - r * K * Math.exp(-r * T) * (1 - cdf(-d2))) / 365
-            : (-S * pdf(d1) * v / (2 * Math.sqrt(T)) + r * K * Math.exp(-r * T) * cdf(-d2)) / 365;
-
-        const vega: number = S * Math.sqrt(T) * pdf(d1) / 100;
-
-        const rho: number = type === OptionType.Call
-            ? K * T * Math.exp(-r * T) * (1 - cdf(-d2)) / 100
-            : -K * T * Math.exp(-r * T) * cdf(-d2) / 100;
-
-        return {
-            delta,
-            gamma,
-            theta,
-            vega,
-            rho
-        };
     };
 
     // update chart data when params change
