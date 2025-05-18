@@ -11,7 +11,7 @@ import GreeksFields from "@/types/greeks-fields";
 /**
  * standard normal cumulative distribution function
  * approximation of the cumulative normal distribution
- *
+ * based off python scipy.stats.norm implementation
  * @param {number} x - the upper limit of integration
  * @returns {number} - the probability
  */
@@ -68,7 +68,7 @@ export function calculateD2(d1: number, v: number, T: number): number {
  * @param {number} T - time to maturity in years
  * @returns {number} - call option price
  */
-export function calculateCallPrice(S: number, K: number, r: number, v: number, T: number) {
+export function calculateCallPrice(S: number, K: number, r: number, v: number, T: number): number {
     // special case handling
     if (T <= 0) return Math.max(0, S - K);
     if (v <= 0) return Math.max(0, S - K * Math.exp(-r * T));
@@ -89,7 +89,7 @@ export function calculateCallPrice(S: number, K: number, r: number, v: number, T
  * @param {number} T - time to maturity in years
  * @returns {number} - put option price
  */
-export function calculatePutPrice(S: number, K: number, r: number, v: number, T: number) {
+export function calculatePutPrice(S: number, K: number, r: number, v: number, T: number): number {
     // special case handling
     if (T <= 0) return Math.max(0, K - S);
     if (v <= 0) return Math.max(0, K * Math.exp(-r * T) - S);

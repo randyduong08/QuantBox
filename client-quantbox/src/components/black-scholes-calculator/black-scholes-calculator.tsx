@@ -1,14 +1,10 @@
 'use client'
 
 import {JSX, useEffect, useState} from 'react';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { useBlackScholesStore } from "@/store/black-scholes-store";
+import {calculateCallPrice, calculatePutPrice} from "@/lib/black-scholes-utils";
 
 
 const BlackScholesCalculator = (): JSX.Element => {
@@ -34,27 +30,12 @@ const BlackScholesCalculator = (): JSX.Element => {
     // func to calculate black-scholes options prices
     const calculateOptionPrices = (): void => {
         // black-scholes formula
-        const d1: number = (Math.log(spotPrice / strikePrice) +
-            (riskFreeRate + (volatility * volatility / 2)) * timeToMaturity) /
-            (volatility * Math.sqrt(timeToMaturity));
-
-        const d2: number = d1 - (volatility * Math.sqrt(timeToMaturity));
-
-        // standard normal cumulative distribution function (i.e. the N(x), x∈{d1,d2} in the formula)
-        // based off python scipy.stats.norm implementation
-        const cdf = (x: number): number => {
-            const t: number = 1 / (1 + 0.2316419 * Math.abs(x));
-            const d: number = 0.3989423 * Math.exp((-x * x) / 2);
-            let p: number= d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
-            if (x > 0) p = 1 - p;
-            return p;
-        };
 
         // calculate call price
-        const call: number = (cdf(d1) * spotPrice) - (cdf(d2) * strikePrice * Math.exp(-riskFreeRate * timeToMaturity));
+        const call: number = calculateCallPrice(spotPrice, strikePrice, riskFreeRate, volatility, timeToMaturity);
 
         // calculate put price using put-call parity
-        const put: number = call + strikePrice * Math.exp(-riskFreeRate * timeToMaturity) - spotPrice;
+        const put: number = calculatePutPrice(spotPrice, strikePrice, riskFreeRate, volatility, timeToMaturity);
 
         // update state
         setCallPrice(Number(call.toFixed(2)));
