@@ -5,7 +5,7 @@
  * based on the black-scholes model
  */
 
-import {OptionType} from "@/types/black-scholes-fields";
+import {BlackScholesHeatmapData, OptionType} from "@/types/black-scholes-fields";
 import GreeksFields from "@/types/greeks-fields";
 
 /**
@@ -154,4 +154,64 @@ export function calculateGreeks(S: number, K: number, r: number, v:number, T: nu
         vega,
         rho
     } as GreeksFields;
+}
+
+/**
+ * generate data for option price heatmap
+ *
+ * @param {number} baseSpotPrice - base spot price
+ * @param {number} baseStrikePrice - base strike price
+ * @param {number} baseVolatility - base volatility
+ * @param {number} r - risk-free interest rate
+ * @param {number} T - time to maturity in years
+ * @returns {BlackScholesHeatmapData} - data for heatmap generation
+ */
+export function generateHeatmapData(baseSpotPrice: number, baseStrikePrice: number, baseVolatility: number, r: number, T: number): BlackScholesHeatmapData {
+    const spotSteps = 10;
+    const volSteps = 10;
+
+    const spotRange: number = 0.4; // ±40% from base spot price
+    const volRange: number = 0.8; // ±48% from base volatility
+
+    const minSpot: number = baseSpotPrice * (1 - spotRange);
+    const maxSpot: number = baseSpotPrice * (1 + spotRange);
+    const spotStep: number = (maxSpot - minSpot) / (spotSteps - 1);
+
+    const minVol: number = Math.max(0.05, baseVolatility * (1 - volRange));
+    const maxVol: number = baseVolatility * (1 + volRange);
+    const volStep: number = (maxVol - minVol) / (volSteps - 1);
+
+    const spotPrices: string[] = []
+    const volatilities: string[] = [];
+    const callData: string[][] = [];
+    const putData: string[][] = [];
+
+    for (let i = 0; i < spotSteps; i++) {
+        const spotPrice: number = minSpot + i * spotStep;
+        spotPrices.push(spotPrice.toFixed(2));
+
+        const callRow: string[] = [];
+        const putRow: string[] = [];
+
+        for (let k = 0; k < volSteps; k++) {
+            const volatility: number = minVol + k * volStep;
+            if (i == 0) volatilities.push(volatility.toFixed(2));
+
+            const callPrice: number = calculateCallPrice(spotPrice, baseStrikePrice, r, volatility, T);
+            const putPrice: number = calculatePutPrice(spotPrice, baseStrikePrice, r, volatility, T);
+
+            callRow.push(callPrice.toFixed(2));
+            putRow.push(putPrice.toFixed(2));
+        }
+
+        callData.push(callRow);
+        putData.push(callRow);
+    }
+
+    return {
+        spotPrices,
+        volatilities,
+        callData,
+        putData
+    } as BlackScholesHeatmapData;
 }

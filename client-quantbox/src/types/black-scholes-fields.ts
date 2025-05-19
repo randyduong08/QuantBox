@@ -19,3 +19,10 @@ export enum OptionType {
     Call = 'call',
     Put = 'put',
 }
+
+export type BlackScholesHeatmapData = {
+    spotPrices: string[];
+    volatilities: string[];
+    callData: string[][];
+    putData: string[][];
+}
