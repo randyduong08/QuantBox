@@ -8,6 +8,7 @@ export type BlackScholesFields = {
 }
 
 export enum BlackScholesField {
+    SpotPrice = 'spotPrice',
     StrikePrice = 'strikePrice',
     TimeToMaturity = 'timeToMaturity',
     Volatility = 'volatility',

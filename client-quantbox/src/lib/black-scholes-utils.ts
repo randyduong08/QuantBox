@@ -205,7 +205,7 @@ export function generateHeatmapData(baseSpotPrice: number, baseStrikePrice: numb
         }
 
         callData.push(callRow);
-        putData.push(callRow);
+        putData.push(putRow);
     }
 
     return {
