@@ -4,12 +4,9 @@ import React, { JSX, useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { IconBrandTabler, IconSettings } from "@tabler/icons-react";
 import { motion } from "motion/react";
-import { cn } from "@/lib/utils";
 import Link from "@/types/link";
 
-export function QuantboxSidebar({
-  children,
-}: Readonly<{ children: React.ReactNode }>): JSX.Element {
+export function QuantboxSidebar(): JSX.Element {
   const links: Link[] = [
     {
       label: "Dashboard",
@@ -40,30 +37,20 @@ export function QuantboxSidebar({
 
   return (
     <>
-      <div
-        className={cn(
-          "mx-auto flex w-full flex-1 rounded-md border border-neutral-200 bg-gray-100 md:flex-row dark:border-neutral-700 dark:bg-neutral-800",
-          "h-screen",
-        )}
-      >
-        <Sidebar open={open} setOpen={setOpen}>
-          <SidebarBody className={"justify-between gap-10"}>
-            <div
-              className={
-                "flex flex-1 flex-col overflow-x-hidden overflow-y-auto"
-              }
-            >
-              {open ? <Logo /> : <LogoIcon />}
-              <div className={"mt-8 flex flex-col gap-2"}>
-                {links.map((link, idx) => (
-                  <SidebarLink key={idx} link={link} />
-                ))}
-              </div>
+      <Sidebar open={open} setOpen={setOpen}>
+        <SidebarBody className={"justify-between gap-10"}>
+          <div
+            className={"flex flex-1 flex-col overflow-x-hidden overflow-y-auto"}
+          >
+            {open ? <Logo /> : <LogoIcon />}
+            <div className={"mt-8 flex flex-col gap-2"}>
+              {links.map((link, idx) => (
+                <SidebarLink key={idx} link={link} />
+              ))}
             </div>
-          </SidebarBody>
-        </Sidebar>
-        <div className={"flex-1 overflow-y-auto"}>{children}</div>
-      </div>
+          </div>
+        </SidebarBody>
+      </Sidebar>
     </>
   );
 }
@@ -72,7 +59,7 @@ export const Logo = () => {
   return (
     <>
       <a
-        href={"#"}
+        href={"/"}
         className={
           "relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
         }
@@ -98,7 +85,7 @@ export const LogoIcon = () => {
   return (
     <>
       <a
-        href={"#"}
+        href={"/"}
         className={
           "relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
         }
