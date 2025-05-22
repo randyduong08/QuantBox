@@ -1,0 +1,45 @@
+# Compiled files and target directory
+/target/
+
+# Build script output
+**/*.rs.bk
+
+# Cargo-related files
+Cargo.lock
+.cargo/config.toml
+
+# IDEs and editors
+# VS Code
+.vscode/
+
+# IntelliJ / CLion / RustRover
+.idea/
+*.iml
+
+# Sublime
+*.sublime-workspace
+*.sublime-project
+
+# Emacs
+*~
+
+# Vim
+*.swp
+*.swo
+*.swn
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Optional: dotenv files (only if they contain secrets)
+.env
+.env.*
