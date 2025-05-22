@@ -1,40 +1,37 @@
 "use client";
 
-import React, { JSX, useState, useEffect } from "react";
+import { JSX } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 const ApiTestComponent = (): JSX.Element => {
-  const [healthStatus, setHealthStatus] = useState("Checking...");
-  const [calculationResult, setCalculationResult] =
-    useState("Not yet calculated");
-
-  // effect to check health on component mount
-  useEffect(() => {
-    const checkHealth = async (): Promise<void> => {
-      try {
-        const response: Response = await fetch(
-          "http://localhost:8080/api/health",
-        );
-        if (response.ok) {
-          setHealthStatus("API is healthy (Status: 200 OK)");
-        } else {
-          setHealthStatus(
-            `API health check failed (Status: ${response.status})`,
-          );
-        }
-      } catch (error) {
-        console.log("Error checking API health:", error);
-        setHealthStatus("API is unreachable");
+  // health check using useQuery (for GET reqs)
+  const {
+    data: healthStatus,
+    isLoading: isHealthLoading,
+    error: healthError,
+  } = useQuery({
+    queryKey: ["healthCheck"], // unique key for this query
+    queryFn: async (): Promise<string> => {
+      const response: Response = await fetch(
+        "http://localhost:8080/api/health",
+      );
+      if (!response.ok) {
+        throw new Error(`health check failed: ${response.status}`);
       }
-    };
+      return "API is healthy (Status: 200 OK)";
+    },
+    // optional: refetchInterval: 5000,
+  });
 
-    checkHealth().then();
-  }, []); // empty arr, runs once on mount
-
-  // func to call the calculation endpoint
-  const handleCalculateClick = async () => {
-    setCalculationResult("Calculating...");
-    try {
-      // post request w/ body
+  // useMutation for POST/PUT/DELETE reqs
+  const {
+    mutate: calculatePrices,
+    data: calculationResult,
+    isPending: isCalculating,
+    error: calculationError,
+    isSuccess: isCalculationSuccess,
+  } = useMutation({
+    mutationFn: async (payload) => {
       const response: Response = await fetch(
         "http://localhost:8080/api/calculate",
         {
@@ -42,33 +39,53 @@ const ApiTestComponent = (): JSX.Element => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ test: 1000 }),
+          body: JSON.stringify(payload),
         },
       );
 
-      if (response.ok) {
-        const textResult: string = await response.text(); // endpoint returning string
-        setCalculationResult(`Calculation successful: "${textResult}"`);
-      } else {
+      if (!response.ok) {
         const errorText: string = await response.text();
-        setCalculationResult(
-          `Calculation failed (Status: ${response.status}): ${errorText}`,
+        throw new Error(
+          `calculation failed: ${response.status} - ${errorText}`,
         );
       }
-    } catch (error) {
-      console.error("Error during calculation:", error);
-      setCalculationResult("Error calling calculation endpoint");
-    }
-  };
+      return response.text();
+    },
+    onError: (error: Error): void => {
+      console.error("calculation error:", error.message);
+    },
+    onSuccess: (data: string): void => {
+      console.log("calculation successful:", data);
+    },
+  });
 
   return (
     <>
       <div>
         <h1>Axum Backend Test</h1>
-        <p>Health Check Status: {healthStatus}</p>
+
+        {isHealthLoading && <p>Health Check Status: Checking...</p>}
+        {healthError && (
+          <p>Health Check Status: Error - {healthError.message}</p>
+        )}
+        {healthStatus && <p>Health Check Status: {healthStatus}</p>}
+
         <hr />
-        <button onClick={handleCalculateClick}>Call Calculate Endpoint</button>
-        <p>Calculation Result: {calculationResult}</p>
+
+        <button
+          onClick={() => calculatePrices(/* potential payload here */)}
+          disabled={isCalculating}
+        >
+          {isCalculating ? "Calculating..." : "Call Calculate Endpoint"}
+        </button>
+
+        {isCalculating && <p>Calculation Result: Calculating...</p>}
+        {calculationError && (
+          <p>Calculation Result: Error - {calculationError.message}</p>
+        )}
+        {isCalculationSuccess && (
+          <p>Calculation Result: &#34;{calculationResult}&#34;</p>
+        )}
       </div>
     </>
   );
