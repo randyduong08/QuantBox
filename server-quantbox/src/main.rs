@@ -1,4 +1,6 @@
 mod api;
+mod models;
+mod compute;
 
 
 use axum::Router;
@@ -12,7 +14,7 @@ async fn main() {
     // run the server with hyper, listening globally on port 8080
     let listener: TcpListener = TcpListener::bind("0.0.0.0:8080")
         .await.unwrap();
-    
+
     println!("Listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }

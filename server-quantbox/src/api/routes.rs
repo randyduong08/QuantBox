@@ -4,7 +4,7 @@ use axum::{
 };
 use tower_http::cors::{CorsLayer, Any};
 
-use crate::api::handlers::{calculate_option_prices, health_check};
+use crate::api::handlers::{calculate_option_prices, get_greeks_prices, get_heatmap_prices, get_options_prices, health_check};
 
 pub fn create_router() -> Router {
 
@@ -21,5 +21,8 @@ pub fn create_router() -> Router {
     Router::new()
         .route("/api/calculate", post(calculate_option_prices))
         .route("/api/health", get(health_check))
+        .route("/api/get-greeks-prices", post(get_greeks_prices))
+        .route("/api/get-options-prices", post(get_options_prices))
+        .route("/api/get-heatmap-prices", post(get_heatmap_prices))
         .layer(cors_layer)
 }
