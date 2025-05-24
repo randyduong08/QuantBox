@@ -4,10 +4,8 @@ import { JSX, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { useBlackScholesStore } from "@/store/black-scholes-store";
-import {
-  calculateCallPrice,
-  calculatePutPrice,
-} from "@/lib/black-scholes-utils";
+import { useQuery } from "@tanstack/react-query";
+import { fetchOptionPrices } from "@/services/black-scholes-service";
 import { BlackScholesFields, OptionType } from "@/types/black-scholes-fields";
 
 interface Props {
@@ -16,9 +14,7 @@ interface Props {
   initialParams: BlackScholesFields;
 }
 
-// TODO 2025-05-24 -- WORK WITH THE PROPS, SET INITIAL STATE
-// WORK ON INCORPORATING INITIAL PARAMS WITH ZUSTAND STORE
-// ^ LIKE IF STORE STATE IS NULL, INIT WITH PARAMS, OTHERWISE, NO
+// TODO 2025-05-24 -- DEBOUNCE API CALLS FROM THIS COMPONENT -- TOO MANY API CALLS WHEN MOVING SLIDER, FREEZES UP
 const BlackScholesCalculator = ({
   initialCallPrice,
   initialPutPrice,
@@ -47,11 +43,11 @@ const BlackScholesCalculator = ({
   // hydrate zustand state with initialParams if null
   useEffect(() => {
     if (
-      !spotPrice &&
-      !strikePrice &&
-      !timeToMaturity &&
-      !volatility &&
-      !riskFreeRate
+      spotPrice === null &&
+      strikePrice === null &&
+      timeToMaturity === null &&
+      volatility === null &&
+      riskFreeRate === null
     ) {
       setBlackScholesFields({
         spotPrice: initialParams.spotPrice,
@@ -62,39 +58,51 @@ const BlackScholesCalculator = ({
         optionType: OptionType.Call,
       } as BlackScholesFields);
     }
+  }, [
+    spotPrice,
+    strikePrice,
+    timeToMaturity,
+    volatility,
+    riskFreeRate,
+    initialParams,
+    setBlackScholesFields,
+  ]);
+
+  const isReady =
+    spotPrice !== null &&
+    strikePrice !== null &&
+    timeToMaturity !== null &&
+    volatility !== null &&
+    riskFreeRate !== null;
+
+  const { data } = useQuery({
+    queryKey: [
+      "optionPrices",
+      spotPrice,
+      strikePrice,
+      timeToMaturity,
+      volatility,
+      riskFreeRate,
+    ],
+    queryFn: () =>
+      fetchOptionPrices({
+        spotPrice: spotPrice!,
+        strikePrice: strikePrice!,
+        timeToMaturity: timeToMaturity!,
+        volatility: volatility!,
+        riskFreeRate: riskFreeRate!,
+        optionType: OptionType.Call,
+      }),
+    enabled: isReady,
+    placeholderData: (prev) => prev,
   });
 
-  // func to calculate black-scholes options prices
-  const calculateOptionPrices = (): void => {
-    // black-scholes formula
-
-    // calculate call price
-    const call: number = calculateCallPrice(
-      spotPrice,
-      strikePrice,
-      riskFreeRate,
-      volatility,
-      timeToMaturity,
-    );
-
-    // calculate put price using put-call parity
-    const put: number = calculatePutPrice(
-      spotPrice,
-      strikePrice,
-      riskFreeRate,
-      volatility,
-      timeToMaturity,
-    );
-
-    // update state
-    setCallPrice(Number(call.toFixed(2)));
-    setPutPrice(Number(put.toFixed(2)));
-  };
-
-  // recalculate whenever inputs change
   useEffect((): void => {
-    calculateOptionPrices();
-  }, [spotPrice, strikePrice, timeToMaturity, volatility, riskFreeRate]);
+    if (!data) return;
+    setCallPrice(data.callPrice);
+    setPutPrice(data.putPrice);
+    console.log(data);
+  }, [data]);
 
   return (
     <>
