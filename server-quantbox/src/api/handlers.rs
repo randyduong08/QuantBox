@@ -5,10 +5,8 @@ use axum::{
 };
 use crate::models::{BlackScholesRequest, Greeks, HeatmapData, GreekRequest};
 use crate::compute::black_scholes::*;
-
-pub async fn calculate_option_prices() -> impl IntoResponse {
-    "Testing endpoint!!!"
-}
+use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 
 pub async fn health_check() -> impl IntoResponse {
     println!("health check endpoint hit!!");
@@ -19,9 +17,12 @@ pub async fn get_options_prices(Json(req): Json<BlackScholesRequest>) -> impl In
     let call: f64 = calculate_call_price(req.spot_price, req.strike_price, req.risk_free_rate, req.volatility, req.time_to_maturity);
     let put: f64 = calculate_put_price(req.spot_price, req.strike_price, req.risk_free_rate, req.volatility, req.time_to_maturity);
 
+    let call_rounded: Decimal = Decimal::from_f64(call).unwrap().round_dp(2);
+    let put_rounded: Decimal = Decimal::from_f64(put).unwrap().round_dp(2);
+
     Json(serde_json::json!({
-        "callPrice": call,
-        "putPrice": put
+        "callPrice": call_rounded,
+        "putPrice": put_rounded
     }))
 }
 
@@ -35,7 +36,13 @@ pub async fn get_greeks_prices(Json(req): Json<GreekRequest>) -> impl IntoRespon
         req.option_type,
     );
 
-    Json(greeks)
+    Json(serde_json::json!({
+        "delta": Decimal::from_f64(greeks.delta).unwrap().round_dp(2),
+        "gamma": Decimal::from_f64(greeks.gamma).unwrap().round_dp(2),
+        "theta": Decimal::from_f64(greeks.theta).unwrap().round_dp(2),
+        "vega": Decimal::from_f64(greeks.vega).unwrap().round_dp(2),
+        "rho": Decimal::from_f64(greeks.rho).unwrap().round_dp(2)
+    }))
 }
 
 pub async fn get_heatmap_prices(Json(req): Json<BlackScholesRequest>) -> impl IntoResponse {

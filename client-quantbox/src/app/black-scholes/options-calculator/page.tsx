@@ -19,9 +19,6 @@ export default async function BlackScholesPage() {
 
   const { callPrice, putPrice } = await fetchOptionPrices(defaultParams);
 
-  console.log(callPrice);
-  console.log(putPrice);
-
   return (
     <>
       <div className={"bg-gray-900 w-full"}>
