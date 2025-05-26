@@ -27,3 +27,5 @@ export type BlackScholesHeatmapData = {
   callData: string[][];
   putData: string[][];
 };
+
+export type HeatmapResponse = BlackScholesHeatmapData;

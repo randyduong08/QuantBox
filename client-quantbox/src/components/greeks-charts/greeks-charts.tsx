@@ -31,7 +31,6 @@ interface Props {
   initialParams: BlackScholesFields;
 }
 
-// TODO 2025-05-25 -- FIGURE OUT WHAT TO DO WITH INITIAL GREEKS PROPS
 const GreeksCharts = ({
   initialDelta,
   initialGamma,

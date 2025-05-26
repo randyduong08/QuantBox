@@ -8,20 +8,52 @@ import {
 import { generateHeatmapData } from "@/lib/black-scholes-utils";
 import {
   BlackScholesField,
+  BlackScholesFields,
   BlackScholesHeatmapData,
   OptionType,
 } from "@/types/black-scholes-fields";
 
-const OptionsHeatmap = (): JSX.Element => {
+interface Props {
+  initialSpotPrices: string[];
+  initialVolatilities: string[];
+  initialCallData: string[][];
+  initialPutData: string[][];
+  initialParams: BlackScholesFields;
+}
+
+const OptionsHeatmap = ({
+  initialSpotPrices,
+  initialVolatilities,
+  initialCallData,
+  initialPutData,
+  initialParams,
+}: Props): JSX.Element => {
   // get state from store
   const blackScholesFields: BlackScholesState = useBlackScholesStore();
 
+  if (
+    !blackScholesFields.spotPrice &&
+    !blackScholesFields.strikePrice &&
+    !blackScholesFields.timeToMaturity &&
+    !blackScholesFields.volatility &&
+    !blackScholesFields.riskFreeRate
+  ) {
+    blackScholesFields.setBlackScholesFields({
+      spotPrice: initialParams.spotPrice,
+      strikePrice: initialParams.strikePrice,
+      timeToMaturity: initialParams.timeToMaturity,
+      volatility: initialParams.volatility,
+      riskFreeRate: initialParams.riskFreeRate,
+      optionType: initialParams.optionType,
+    } as BlackScholesFields);
+  }
+
   // state for heatmap data
   const [heatmapData, setHeatmapData] = useState<BlackScholesHeatmapData>({
-    spotPrices: [],
-    volatilities: [],
-    callData: [],
-    putData: [],
+    spotPrices: initialSpotPrices,
+    volatilities: initialVolatilities,
+    callData: initialCallData,
+    putData: initialPutData,
   });
 
   // generate heatmap data when parameters change
