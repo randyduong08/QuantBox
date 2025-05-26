@@ -5,7 +5,10 @@
  * based on the black-scholes model
  */
 
-import {BlackScholesHeatmapData, OptionType} from "@/types/black-scholes-fields";
+import {
+  BlackScholesHeatmapData,
+  OptionType,
+} from "@/types/black-scholes-fields";
 import GreeksFields from "@/types/greeks-fields";
 
 /**
@@ -15,12 +18,16 @@ import GreeksFields from "@/types/greeks-fields";
  * @param {number} x - the upper limit of integration
  * @returns {number} - the probability
  */
-export function normalCDF(x: number) {
-    const t: number = 1.0 / (1.0 + 0.2316419 * Math.abs(x));
-    const d: number = 0.3989423 * Math.exp((-x * x) / 2);
-    let p: number= d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
-    if (x > 0) p = 1 - p;
-    return p;
+export function normalCDF(x: number): number {
+  const t: number = 1.0 / (1.0 + 0.2316419 * Math.abs(x));
+  const d: number = 0.3989423 * Math.exp((-x * x) / 2);
+  let p: number =
+    d *
+    t *
+    (0.3193815 +
+      t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  if (x > 0) p = 1 - p;
+  return p;
 }
 
 /**
@@ -30,7 +37,7 @@ export function normalCDF(x: number) {
  * @returns {number} - the probability density
  */
 export function normalPDF(x: number): number {
-    return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+  return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
 }
 
 /**
@@ -42,8 +49,14 @@ export function normalPDF(x: number): number {
  * @param {number} T - time to maturity in years
  * @returns {number} - the d1 value
  */
-export function calculateD1(S: number, K: number, r: number, v: number, T: number): number {
-    return (Math.log(S / K) + (r + 0.5 * v * v) * T) / (v * Math.sqrt(T));
+export function calculateD1(
+  S: number,
+  K: number,
+  r: number,
+  v: number,
+  T: number,
+): number {
+  return (Math.log(S / K) + (r + 0.5 * v * v) * T) / (v * Math.sqrt(T));
 }
 
 /**
@@ -55,7 +68,7 @@ export function calculateD1(S: number, K: number, r: number, v: number, T: numbe
  * @returns {number} - the d2 value
  */
 export function calculateD2(d1: number, v: number, T: number): number {
-    return d1 - v * Math.sqrt(T);
+  return d1 - v * Math.sqrt(T);
 }
 
 /**
@@ -68,15 +81,21 @@ export function calculateD2(d1: number, v: number, T: number): number {
  * @param {number} T - time to maturity in years
  * @returns {number} - call option price
  */
-export function calculateCallPrice(S: number, K: number, r: number, v: number, T: number): number {
-    // special case handling
-    if (T <= 0) return Math.max(0, S - K);
-    if (v <= 0) return Math.max(0, S - K * Math.exp(-r * T));
+export function calculateCallPrice(
+  S: number,
+  K: number,
+  r: number,
+  v: number,
+  T: number,
+): number {
+  // special case handling
+  if (T <= 0) return Math.max(0, S - K);
+  if (v <= 0) return Math.max(0, S - K * Math.exp(-r * T));
 
-    const d1: number = calculateD1(S, K, r, v, T);
-    const d2: number = calculateD2(d1, v, T);
+  const d1: number = calculateD1(S, K, r, v, T);
+  const d2: number = calculateD2(d1, v, T);
 
-    return (normalCDF(d1) * S) - (normalCDF(d2) * K * Math.exp(-r * T));
+  return normalCDF(d1) * S - normalCDF(d2) * K * Math.exp(-r * T);
 }
 
 /**
@@ -89,15 +108,21 @@ export function calculateCallPrice(S: number, K: number, r: number, v: number, T
  * @param {number} T - time to maturity in years
  * @returns {number} - put option price
  */
-export function calculatePutPrice(S: number, K: number, r: number, v: number, T: number): number {
-    // special case handling
-    if (T <= 0) return Math.max(0, K - S);
-    if (v <= 0) return Math.max(0, K * Math.exp(-r * T) - S);
+export function calculatePutPrice(
+  S: number,
+  K: number,
+  r: number,
+  v: number,
+  T: number,
+): number {
+  // special case handling
+  if (T <= 0) return Math.max(0, K - S);
+  if (v <= 0) return Math.max(0, K * Math.exp(-r * T) - S);
 
-    const d1: number = calculateD1(S, K, r, v, T);
-    const d2: number = calculateD2(d1, v, T);
+  const d1: number = calculateD1(S, K, r, v, T);
+  const d2: number = calculateD2(d1, v, T);
 
-    return K * Math.exp(-r * T) * normalCDF(-d2) - S * normalCDF(-d1);
+  return K * Math.exp(-r * T) * normalCDF(-d2) - S * normalCDF(-d1);
 }
 
 /**
@@ -110,50 +135,62 @@ export function calculatePutPrice(S: number, K: number, r: number, v: number, T:
  * @param {number} T - time to maturity in years
  * @param {OptionType} type - option type ('call' or 'put')
  */
-export function calculateGreeks(S: number, K: number, r: number, v:number, T: number, type: OptionType): GreeksFields {
-    // special case handling
-    if (T <= 0 || v <= 0) {
-        return {
-            delta: 0,
-            gamma: 0,
-            theta: 0,
-            vega: 0,
-            rho: 0
-        } as GreeksFields;
-    }
-
-    const d1: number = calculateD1(S, K, r, v, T);
-    const d2: number = calculateD2(d1, v, T);
-    const pdf: number = normalPDF(d1);
-
-    // rate of change of option price w.r.t underlying asset price
-    const delta: number = type === OptionType.Call
-        ? 1 - normalCDF(-d1)
-        : normalCDF(-d1) - 1;
-
-    // rate of change of delta w.r.t underlying asset price
-    const gamma: number = pdf / (S * v * Math.sqrt(T));
-
-    // (daily) rate of change of option price w.r.t time to maturity
-    const theta: number = type === OptionType.Call
-        ? (-S * pdf * v / (2 * Math.sqrt(T)) - r * K * Math.exp(-r * T) * (1 - normalCDF(-d2))) / 365
-        : (-S * pdf * v / (2 * Math.sqrt(T)) + r * K * Math.exp(-r * T) * normalCDF(-d2)) / 365;
-
-    // rate of change of option price w.r.t volatility -- divided by 100 to represent a 1% change in volatility
-    const vega: number = S * Math.sqrt(T) * pdf / 100;
-
-    // rate of change of option price w.r.t risk-free interest rate -- divided by 100 to represent a 1% change in interest rate
-    const rho: number = type === OptionType.Call
-        ? K * T * Math.exp(-r * T) * (1 - normalCDF(-d2)) / 100
-        : -K * T * Math.exp(-r * T) * normalCDF(-d2) / 100;
-
+export function calculateGreeks(
+  S: number,
+  K: number,
+  r: number,
+  v: number,
+  T: number,
+  type: OptionType,
+): GreeksFields {
+  // special case handling
+  if (T <= 0 || v <= 0) {
     return {
-        delta,
-        gamma,
-        theta,
-        vega,
-        rho
+      delta: 0,
+      gamma: 0,
+      theta: 0,
+      vega: 0,
+      rho: 0,
     } as GreeksFields;
+  }
+
+  const d1: number = calculateD1(S, K, r, v, T);
+  const d2: number = calculateD2(d1, v, T);
+  const pdf: number = normalPDF(d1);
+
+  // rate of change of option price w.r.t underlying asset price
+  const delta: number =
+    type === OptionType.Call ? 1 - normalCDF(-d1) : normalCDF(-d1) - 1;
+
+  // rate of change of delta w.r.t underlying asset price
+  const gamma: number = pdf / (S * v * Math.sqrt(T));
+
+  // (daily) rate of change of option price w.r.t time to maturity
+  const theta: number =
+    type === OptionType.Call
+      ? ((-S * pdf * v) / (2 * Math.sqrt(T)) -
+          r * K * Math.exp(-r * T) * (1 - normalCDF(-d2))) /
+        365
+      : ((-S * pdf * v) / (2 * Math.sqrt(T)) +
+          r * K * Math.exp(-r * T) * normalCDF(-d2)) /
+        365;
+
+  // rate of change of option price w.r.t volatility -- divided by 100 to represent a 1% change in volatility
+  const vega: number = (S * Math.sqrt(T) * pdf) / 100;
+
+  // rate of change of option price w.r.t risk-free interest rate -- divided by 100 to represent a 1% change in interest rate
+  const rho: number =
+    type === OptionType.Call
+      ? (K * T * Math.exp(-r * T) * (1 - normalCDF(-d2))) / 100
+      : (-K * T * Math.exp(-r * T) * normalCDF(-d2)) / 100;
+
+  return {
+    delta,
+    gamma,
+    theta,
+    vega,
+    rho,
+  } as GreeksFields;
 }
 
 /**
@@ -166,52 +203,70 @@ export function calculateGreeks(S: number, K: number, r: number, v:number, T: nu
  * @param {number} T - time to maturity in years
  * @returns {BlackScholesHeatmapData} - data for heatmap generation
  */
-export function generateHeatmapData(baseSpotPrice: number, baseStrikePrice: number, baseVolatility: number, r: number, T: number): BlackScholesHeatmapData {
-    const spotSteps = 10;
-    const volSteps = 10;
+export function generateHeatmapData(
+  baseSpotPrice: number,
+  baseStrikePrice: number,
+  baseVolatility: number,
+  r: number,
+  T: number,
+): BlackScholesHeatmapData {
+  const spotSteps = 10;
+  const volSteps = 10;
 
-    const spotRange: number = 0.4; // ±40% from base spot price
-    const volRange: number = 0.8; // ±48% from base volatility
+  const spotRange: number = 0.4; // ±40% from base spot price
+  const volRange: number = 0.8; // ±48% from base volatility
 
-    const minSpot: number = baseSpotPrice * (1 - spotRange);
-    const maxSpot: number = baseSpotPrice * (1 + spotRange);
-    const spotStep: number = (maxSpot - minSpot) / (spotSteps - 1);
+  const minSpot: number = baseSpotPrice * (1 - spotRange);
+  const maxSpot: number = baseSpotPrice * (1 + spotRange);
+  const spotStep: number = (maxSpot - minSpot) / (spotSteps - 1);
 
-    const minVol: number = Math.max(0.05, baseVolatility * (1 - volRange));
-    const maxVol: number = baseVolatility * (1 + volRange);
-    const volStep: number = (maxVol - minVol) / (volSteps - 1);
+  const minVol: number = Math.max(0.05, baseVolatility * (1 - volRange));
+  const maxVol: number = baseVolatility * (1 + volRange);
+  const volStep: number = (maxVol - minVol) / (volSteps - 1);
 
-    const spotPrices: string[] = []
-    const volatilities: string[] = [];
-    const callData: string[][] = [];
-    const putData: string[][] = [];
+  const spotPrices: string[] = [];
+  const volatilities: string[] = [];
+  const callData: string[][] = [];
+  const putData: string[][] = [];
 
-    for (let i = 0; i < spotSteps; i++) {
-        const spotPrice: number = minSpot + i * spotStep;
-        spotPrices.push(spotPrice.toFixed(2));
+  for (let i = 0; i < spotSteps; i++) {
+    const spotPrice: number = minSpot + i * spotStep;
+    spotPrices.push(spotPrice.toFixed(2));
 
-        const callRow: string[] = [];
-        const putRow: string[] = [];
+    const callRow: string[] = [];
+    const putRow: string[] = [];
 
-        for (let k = 0; k < volSteps; k++) {
-            const volatility: number = minVol + k * volStep;
-            if (i == 0) volatilities.push(volatility.toFixed(2));
+    for (let k = 0; k < volSteps; k++) {
+      const volatility: number = minVol + k * volStep;
+      if (i == 0) volatilities.push(volatility.toFixed(2));
 
-            const callPrice: number = calculateCallPrice(spotPrice, baseStrikePrice, r, volatility, T);
-            const putPrice: number = calculatePutPrice(spotPrice, baseStrikePrice, r, volatility, T);
+      const callPrice: number = calculateCallPrice(
+        spotPrice,
+        baseStrikePrice,
+        r,
+        volatility,
+        T,
+      );
+      const putPrice: number = calculatePutPrice(
+        spotPrice,
+        baseStrikePrice,
+        r,
+        volatility,
+        T,
+      );
 
-            callRow.push(callPrice.toFixed(2));
-            putRow.push(putPrice.toFixed(2));
-        }
-
-        callData.push(callRow);
-        putData.push(putRow);
+      callRow.push(callPrice.toFixed(2));
+      putRow.push(putPrice.toFixed(2));
     }
 
-    return {
-        spotPrices,
-        volatilities,
-        callData,
-        putData
-    } as BlackScholesHeatmapData;
+    callData.push(callRow);
+    putData.push(putRow);
+  }
+
+  return {
+    spotPrices,
+    volatilities,
+    callData,
+    putData,
+  } as BlackScholesHeatmapData;
 }
