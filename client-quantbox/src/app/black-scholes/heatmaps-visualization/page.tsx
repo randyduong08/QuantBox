@@ -16,8 +16,6 @@ export default async function HeatmapsVisualizationPage(): Promise<JSX.Element> 
   const { spotPrices, volatilities, callData, putData } =
     await fetchHeatmapData(defaultParams);
 
-  console.log("OBJECT: ", spotPrices, volatilities, callData, putData);
-
   return (
     <>
       <div className={"bg-gray-900 w-full"}>

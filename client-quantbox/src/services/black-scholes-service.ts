@@ -1,8 +1,10 @@
 import {
   BlackScholesFields,
   HeatmapResponse,
+  OptionPricesResponse,
   OptionType,
 } from "@/types/black-scholes-fields";
+import GreeksFields from "@/types/greeks-fields";
 
 interface OptionInput {
   spot_price: number;
@@ -16,7 +18,9 @@ interface GreeksInput extends OptionInput {
   option_type: OptionType;
 }
 
-export async function fetchOptionPrices(input: BlackScholesFields) {
+export async function fetchOptionPrices(
+  input: BlackScholesFields,
+): Promise<OptionPricesResponse> {
   const response: Response = await fetch(
     "http://localhost:8080/api/get-options-prices",
     {
@@ -39,7 +43,9 @@ export async function fetchOptionPrices(input: BlackScholesFields) {
   return response.json();
 }
 
-export async function fetchGreeksPrices(input: BlackScholesFields) {
+export async function fetchGreeksPrices(
+  input: BlackScholesFields,
+): Promise<GreeksFields> {
   const response: Response = await fetch(
     "http://localhost:8080/api/get-greeks-prices",
     {

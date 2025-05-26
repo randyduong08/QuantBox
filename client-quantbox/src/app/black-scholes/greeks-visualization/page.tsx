@@ -17,8 +17,6 @@ export default async function GreeksVisualizationPage(): Promise<JSX.Element> {
   const { delta, gamma, rho, theta, vega } =
     await fetchGreeksPrices(defaultParams);
 
-  console.log("OBJECT: ", delta, gamma, rho, theta, vega);
-
   return (
     <>
       <div className={"bg-gray-900 w-full"}>
