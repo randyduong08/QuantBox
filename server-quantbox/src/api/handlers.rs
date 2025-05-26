@@ -14,6 +14,7 @@ pub async fn health_check() -> impl IntoResponse {
 }
 
 pub async fn get_options_prices(Json(req): Json<BlackScholesRequest>) -> impl IntoResponse {
+    println!("options endpoint hit");
     let call: f64 = calculate_call_price(req.spot_price, req.strike_price, req.risk_free_rate, req.volatility, req.time_to_maturity);
     let put: f64 = calculate_put_price(req.spot_price, req.strike_price, req.risk_free_rate, req.volatility, req.time_to_maturity);
 
@@ -27,6 +28,7 @@ pub async fn get_options_prices(Json(req): Json<BlackScholesRequest>) -> impl In
 }
 
 pub async fn get_greeks_prices(Json(req): Json<GreekRequest>) -> impl IntoResponse {
+    println!("greeks endpoint hit");
     let greeks: Greeks = calculate_greeks(
         req.scholes.spot_price,
         req.scholes.strike_price,
@@ -35,6 +37,14 @@ pub async fn get_greeks_prices(Json(req): Json<GreekRequest>) -> impl IntoRespon
         req.scholes.time_to_maturity,
         req.option_type,
     );
+
+    println!("TESTING");
+
+    // "delta": Decimal::from_f64(greeks.delta).unwrap().round_dp(2),
+    // "gamma": Decimal::from_f64(greeks.gamma).unwrap().round_dp(2),
+    // "theta": Decimal::from_f64(greeks.theta).unwrap().round_dp(2),
+    // "vega": Decimal::from_f64(greeks.vega).unwrap().round_dp(2),
+    // "rho": Decimal::from_f64(greeks.rho).unwrap().round_dp(2)
 
     Json(serde_json::json!({
         "delta": Decimal::from_f64(greeks.delta).unwrap().round_dp(2),

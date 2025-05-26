@@ -1,8 +1,24 @@
 import Head from "next/head";
 import { JSX } from "react";
 import GreeksCharts from "@/components/greeks-charts/greeks-charts";
+import { fetchGreeksPrices } from "@/services/black-scholes-service";
+import { BlackScholesFields, OptionType } from "@/types/black-scholes-fields";
 
-export default function GreeksVisualizationPage(): JSX.Element {
+export default async function GreeksVisualizationPage(): Promise<JSX.Element> {
+  const defaultParams: BlackScholesFields = {
+    spotPrice: 100,
+    strikePrice: 100,
+    riskFreeRate: 0.05,
+    volatility: 0.2,
+    timeToMaturity: 1,
+    optionType: OptionType.Call,
+  } as BlackScholesFields;
+
+  const { delta, gamma, rho, theta, vega } =
+    await fetchGreeksPrices(defaultParams);
+
+  console.log("OBJECT: ", delta, gamma, rho, theta, vega);
+
   return (
     <>
       <div className={"bg-gray-900 w-full"}>
@@ -15,7 +31,14 @@ export default function GreeksVisualizationPage(): JSX.Element {
           <link rel={"icon"} href={"/favicon.ico"} />
         </Head>
 
-        <GreeksCharts />
+        <GreeksCharts
+          initialParams={defaultParams}
+          initialDelta={delta}
+          initialGamma={gamma}
+          initialRho={rho}
+          initialTheta={theta}
+          initialVega={vega}
+        />
       </div>
     </>
   );

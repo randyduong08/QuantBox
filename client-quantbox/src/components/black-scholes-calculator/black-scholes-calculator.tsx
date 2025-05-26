@@ -16,9 +16,6 @@ interface Props {
   initialParams: BlackScholesFields;
 }
 
-// TODO 2025-05-24 -- WORK WITH THE PROPS, SET INITIAL STATE
-// WORK ON INCORPORATING INITIAL PARAMS WITH ZUSTAND STORE
-// ^ LIKE IF STORE STATE IS NULL, INIT WITH PARAMS, OTHERWISE, NO
 const BlackScholesCalculator = ({
   initialCallPrice,
   initialPutPrice,
