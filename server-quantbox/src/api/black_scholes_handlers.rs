@@ -38,14 +38,6 @@ pub async fn get_greeks_prices(Json(req): Json<GreekRequest>) -> impl IntoRespon
         req.option_type,
     );
 
-    println!("TESTING");
-
-    // "delta": Decimal::from_f64(greeks.delta).unwrap().round_dp(2),
-    // "gamma": Decimal::from_f64(greeks.gamma).unwrap().round_dp(2),
-    // "theta": Decimal::from_f64(greeks.theta).unwrap().round_dp(2),
-    // "vega": Decimal::from_f64(greeks.vega).unwrap().round_dp(2),
-    // "rho": Decimal::from_f64(greeks.rho).unwrap().round_dp(2)
-
     Json(serde_json::json!({
         "delta": Decimal::from_f64(greeks.delta).unwrap().round_dp(2),
         "gamma": Decimal::from_f64(greeks.gamma).unwrap().round_dp(2),
