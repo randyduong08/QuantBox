@@ -2,7 +2,8 @@
 use rand::rng;
 use rand::rngs::ThreadRng;
 use rand_distr::{Distribution, Normal};
-use crate::models::{MonteCarloRequest, MonteCarloResult};
+use crate::compute::black_scholes::{calculate_call_price, calculate_put_price};
+use crate::models::{BlackScholesResult, ComparisonResult, MonteCarloRequest, MonteCarloResult};
 
 pub struct MonteCarloEngine;
 
@@ -64,6 +65,35 @@ impl MonteCarloEngine {
             put_price,
             standard_error,
             confidence_interval_95,
+        }
+    }
+
+    // compare MC results with BS
+    pub fn compare_with_black_scholes(params: &MonteCarloRequest) -> ComparisonResult {
+        let mc_result: MonteCarloResult = Self::price_european_option(params);
+
+        let bs_result: BlackScholesResult = BlackScholesResult {
+            call_price: calculate_call_price(
+                params.spot_price,
+                params.strike_price,
+                params.risk_free_rate,
+                params.volatility,
+                params.time_to_expiry,
+            ),
+            put_price: calculate_put_price(
+                params.spot_price,
+                params.strike_price,
+                params.risk_free_rate,
+                params.volatility,
+                params.time_to_expiry,
+            ),
+        };
+
+        ComparisonResult {
+            call_price_diff: (mc_result.call_price - bs_result.call_price).abs(),
+            put_price_diff: (mc_result.put_price - bs_result.put_price).abs(),
+            monte_carlo: mc_result,
+            black_scholes: bs_result,
         }
     }
 }
