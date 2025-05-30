@@ -3,9 +3,13 @@ use axum::{
     http::StatusCode,
     response::IntoResponse,
 };
+use crate::compute::black_scholes::{calculate_options_prices};
 use crate::compute::monte_carlo_engine::MonteCarloEngine;
-use crate::models::{BlackScholesResult, ComparisonResponse, ComparisonResult, MonteCarloRequest,
-                    MonteCarloResponse, MonteCarloResult, PriceDifferences};
+use crate::models::{BlackScholesResult, ComparisonResponse,
+                    ComparisonResult, ConvergencePoint,
+                    ConvergenceRequest, ConvergenceResponse,
+                    MonteCarloRequest, MonteCarloResponse,
+                    MonteCarloResult, PriceDifferences};
 
 pub async fn get_monte_carlo_price(Json(req): Json<MonteCarloRequest>) -> impl IntoResponse {
     println!("monte carlo pricing endpoint hit");
@@ -72,9 +76,62 @@ pub async fn get_monte_carlo_comparison(Json(req): Json<MonteCarloRequest>) -> i
     Ok(Json(response))
 }
 
-pub async fn get_monte_carlo_convergence_analysis() -> impl IntoResponse {
-    println!("monte carlo convergence endpoint hit");
-    Json({})
+pub async fn get_monte_carlo_convergence_analysis(Json(req): Json<ConvergenceRequest>) -> impl IntoResponse {
+    println!("convergence analysis endpoint hit");
+
+    if req.spot_price <= 0.0 || req.strike_price <= 0.0 ||
+        req.time_to_expiry <= 0.0 || req.volatility <= 0.0 {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let mut convergence_data: Vec<ConvergencePoint> = Vec::new();
+
+    // get BS reference price
+    let bs_result: BlackScholesResult = calculate_options_prices(
+        req.spot_price,
+        req.strike_price,
+        req.risk_free_rate,
+        req.volatility,
+        req.time_to_expiry,
+    );
+
+    // test convergence at different simulation counts
+    for num_sims in (req.step_size..=req.max_simulations).step_by(req.step_size) {
+        let start_time: std::time::Instant = std::time::Instant::now();
+
+        let params = MonteCarloRequest {
+            spot_price: req.spot_price,
+            strike_price: req.strike_price,
+            time_to_expiry: req.time_to_expiry,
+            risk_free_rate: req.risk_free_rate,
+            volatility: req.volatility,
+            num_simulations: num_sims,
+        };
+
+        let mc_result: MonteCarloResult = MonteCarloEngine::price_european_option(&params);
+        let computation_time: std::time::Duration = start_time.elapsed();
+
+        convergence_data.push(ConvergencePoint {
+            num_simulations: num_sims,
+            call_price: mc_result.call_price,
+            standard_error: mc_result.standard_error,
+            time_ms: computation_time.as_millis(),
+        });
+    }
+
+    let final_difference: f64 = if let Some(last_point) = convergence_data.last() {
+        (last_point.call_price - bs_result.call_price).abs()
+    } else {
+        0.0
+    };
+
+    let response: ConvergenceResponse = ConvergenceResponse {
+        convergence_data,
+        black_scholes_reference: bs_result.call_price,
+        final_difference,
+    };
+
+    Ok(Json(response))
 }
 
 

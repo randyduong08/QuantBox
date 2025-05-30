@@ -1,6 +1,6 @@
 use std::f64::consts::PI;
 
-use crate::models::{Greeks, HeatmapData, OptionType};
+use crate::models::{BlackScholesResult, Greeks, HeatmapData, OptionType};
 
 fn normal_pdf(x: f64) -> f64 {
     (-0.5 * x * x).exp() / (2.0 * PI).sqrt()
@@ -51,6 +51,13 @@ pub fn calculate_put_price(s: f64, k: f64, r: f64, v: f64, t: f64) -> f64 {
     let d2 = calculate_d2(d1, v, t);
 
     k * (-r * t).exp() * normal_cdf(-d2) - s * normal_cdf(-d1)
+}
+
+pub fn calculate_options_prices(s: f64, k: f64, r: f64, v: f64, t: f64) -> BlackScholesResult {
+    BlackScholesResult {
+        call_price: calculate_call_price(s, k, r, v, t),
+        put_price: calculate_put_price(s, k, r, v, t),
+    }
 }
 
 pub fn calculate_greeks(s: f64, k: f64, r: f64, v: f64, t: f64, option_type: OptionType) -> Greeks {

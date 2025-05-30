@@ -10,6 +10,9 @@ mod comparison_result;
 mod black_scholes_result;
 mod comparison_response;
 mod price_differences;
+mod convergence_request;
+mod convergence_response;
+mod convergence_point;
 
 pub use greeks::Greeks;
 pub use heatmap::HeatmapData;
@@ -23,3 +26,6 @@ pub use comparison_result::ComparisonResult;
 pub use black_scholes_result::BlackScholesResult;
 pub use price_differences::PriceDifferences;
 pub use comparison_response::ComparisonResponse;
+pub use convergence_request::ConvergenceRequest;
+pub use convergence_response::ConvergenceResponse;
+pub use convergence_point::ConvergencePoint;

@@ -13,6 +13,7 @@ pub async fn health_check() -> impl IntoResponse {
     StatusCode::OK
 }
 
+// TODO -- REFACTOR TO JUST USE CALCULATE_OPTIONS_PRICES FUNC
 pub async fn get_options_prices(Json(req): Json<BlackScholesRequest>) -> impl IntoResponse {
     println!("options endpoint hit");
     let call: f64 = calculate_call_price(req.spot_price, req.strike_price, req.risk_free_rate, req.volatility, req.time_to_maturity);
