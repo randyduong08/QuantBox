@@ -1,6 +1,6 @@
 use std::f64::consts::PI;
 
-use crate::models::{BlackScholesResult, Greeks, HeatmapData, OptionType};
+use crate::models::black_scholes_models::{BlackScholesResult, Greeks, HeatmapData, OptionType};
 
 fn normal_pdf(x: f64) -> f64 {
     (-0.5 * x * x).exp() / (2.0 * PI).sqrt()

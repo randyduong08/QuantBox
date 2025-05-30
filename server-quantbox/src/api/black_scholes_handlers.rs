@@ -3,7 +3,7 @@ use axum::{
     http::StatusCode,
     response::IntoResponse,
 };
-use crate::models::{BlackScholesRequest, Greeks, HeatmapData, GreekRequest};
+use crate::models::black_scholes_models::{BlackScholesRequest, Greeks, HeatmapData, GreekRequest};
 use crate::compute::black_scholes::*;
 use rust_decimal::Decimal;
 use rust_decimal::prelude::*;

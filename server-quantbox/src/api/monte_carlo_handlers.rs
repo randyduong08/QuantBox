@@ -5,11 +5,11 @@ use axum::{
 };
 use crate::compute::black_scholes::{calculate_options_prices};
 use crate::compute::monte_carlo_engine::MonteCarloEngine;
-use crate::models::{BlackScholesResult, ComparisonResponse,
-                    ComparisonResult, ConvergencePoint,
-                    ConvergenceRequest, ConvergenceResponse,
-                    MonteCarloRequest, MonteCarloResponse,
-                    MonteCarloResult, PriceDifferences};
+pub use crate::models::black_scholes_models::{BlackScholesResult};
+pub use crate::models::monte_carlo_models::{ComparisonResponse, ComparisonResult,
+                                            ConvergencePoint, ConvergenceRequest,
+                                            ConvergenceResponse, MonteCarloRequest,
+                                            MonteCarloResponse, MonteCarloResult, PriceDifferences};
 
 pub async fn get_monte_carlo_price(Json(req): Json<MonteCarloRequest>) -> impl IntoResponse {
     println!("monte carlo pricing endpoint hit");

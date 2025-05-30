@@ -1,4 +1,5 @@
-use crate::models::{BlackScholesResult, MonteCarloResult};
+use crate::models::black_scholes_models::{BlackScholesResult};
+use crate::models::monte_carlo_models::{MonteCarloResult};
 
 #[derive(Debug)]
 pub struct ComparisonResult {

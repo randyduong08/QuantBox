@@ -1,5 +1,5 @@
 use serde::Serialize;
-use crate::models::ConvergencePoint;
+use crate::models::monte_carlo_models::ConvergencePoint;
 
 #[derive(Debug, Serialize)]
 pub struct ConvergenceResponse {

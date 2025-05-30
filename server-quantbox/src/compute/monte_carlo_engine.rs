@@ -3,7 +3,8 @@ use rand::rng;
 use rand::rngs::ThreadRng;
 use rand_distr::{Distribution, Normal};
 use crate::compute::black_scholes::{calculate_options_prices};
-use crate::models::{BlackScholesResult, ComparisonResult, MonteCarloRequest, MonteCarloResult};
+use crate::models::monte_carlo_models::{ComparisonResult, MonteCarloRequest, MonteCarloResult};
+use crate::models::black_scholes_models::{BlackScholesResult};
 
 pub struct MonteCarloEngine;
 

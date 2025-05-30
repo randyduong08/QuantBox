@@ -1,5 +1,6 @@
 use serde::Serialize;
-use crate::models::{BlackScholesResult, MonteCarloResponse, PriceDifferences};
+use crate::models::monte_carlo_models::{MonteCarloResponse, PriceDifferences};
+use crate::models::black_scholes_models::{BlackScholesResult};
 
 #[derive(Debug, Serialize)]
 pub struct ComparisonResponse {
