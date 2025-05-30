@@ -7,4 +7,4 @@ pub struct GreekRequest {
     pub option_type: OptionType,
 }
 
-use crate::models::{BlackScholesRequest, OptionType};
+use crate::models::black_scholes_models::{BlackScholesRequest, OptionType};

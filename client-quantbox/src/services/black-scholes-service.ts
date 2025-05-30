@@ -22,7 +22,7 @@ export async function fetchOptionPrices(
   input: BlackScholesFields,
 ): Promise<OptionPricesResponse> {
   const response: Response = await fetch(
-    "http://localhost:8080/api/get-options-prices",
+    "http://localhost:8080/api/black-scholes/get-options-prices",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -47,7 +47,7 @@ export async function fetchGreeksPrices(
   input: BlackScholesFields,
 ): Promise<GreeksFields> {
   const response: Response = await fetch(
-    "http://localhost:8080/api/get-greeks-prices",
+    "http://localhost:8080/api/black-scholes/get-greeks-prices",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -73,7 +73,7 @@ export async function fetchHeatmapData(
   input: BlackScholesFields,
 ): Promise<HeatmapResponse> {
   const response: Response = await fetch(
-    "http://localhost:8080/api/get-heatmap-prices",
+    "http://localhost:8080/api/black-scholes/get-heatmap-prices",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
