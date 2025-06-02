@@ -21,6 +21,11 @@ export function QuantboxSidebar(): JSX.Element {
       icon: "📊",
     },
     {
+      label: "Monte Carlo Sim",
+      href: "/monte-carlo/simulator",
+      icon: "🃏",
+    },
+    {
       label: "Backtest",
       href: "/backtest",
       icon: "🅱",
