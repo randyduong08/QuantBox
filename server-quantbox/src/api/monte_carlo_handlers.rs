@@ -5,6 +5,7 @@ use axum::{
 };
 use crate::compute::black_scholes::{calculate_options_prices};
 use crate::compute::monte_carlo_engine::MonteCarloEngine;
+use crate::compute::parallel_monte_carlo_engine::ParallelMonteCarloEngine;
 pub use crate::models::black_scholes_models::{BlackScholesResult};
 pub use crate::models::monte_carlo_models::{ComparisonResponse, ComparisonResult,
                                             ConvergencePoint, ConvergenceRequest,
@@ -22,6 +23,31 @@ pub async fn get_monte_carlo_price(Json(req): Json<MonteCarloRequest>) -> impl I
     }
 
     let result: MonteCarloResult = MonteCarloEngine::price_european_option(&req);
+    let computation_time: std::time::Duration = start_time.elapsed();
+
+    let response: MonteCarloResponse = MonteCarloResponse {
+        call_price: result.call_price,
+        put_price: result.put_price,
+        standard_error: result.standard_error,
+        confidence_interval_95: result.confidence_interval_95,
+        num_simulations: req.num_simulations,
+        computation_time_ms: computation_time.as_millis(),
+    };
+
+    Ok(Json(response))
+}
+
+pub async fn get_monte_carlo_price_parallel(Json(req): Json<MonteCarloRequest>) -> impl IntoResponse {
+    println!("monte carlo pricing (parallel) endpoint hit");
+
+    let start_time: std::time::Instant = std::time::Instant::now();
+
+    // validate inputs
+    if req.spot_price <= 0.0 || req.strike_price <= 0.0 || req.time_to_expiry <= 0.0 || req.volatility <= 0.0 {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let result: MonteCarloResult = ParallelMonteCarloEngine::price_european_option(&req);
     let computation_time: std::time::Duration = start_time.elapsed();
 
     let response: MonteCarloResponse = MonteCarloResponse {
