@@ -30,6 +30,32 @@ export async function fetchMonteCarloSimulation(
   return response.json();
 }
 
+export async function fetchMonteCarloSimulationParallel(
+  input: MonteCarloParams,
+): Promise<MonteCarloResult> {
+  const response: Response = await fetch(
+    "http://localhost:8080/api/monte-carlo/get-price-parallel",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        spot_price: input.spotPrice,
+        strike_price: input.strikePrice,
+        time_to_expiry: input.timeToExpiry,
+        risk_free_rate: input.riskFreeRate,
+        volatility: input.volatility,
+        num_simulations: input.numSimulations,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Error running Monte Carlo simulation");
+  }
+
+  return response.json();
+}
+
 export async function fetchComparison(
   input: MonteCarloParams,
 ): Promise<ComparisonResult> {

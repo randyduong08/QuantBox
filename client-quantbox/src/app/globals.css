@@ -112,6 +112,15 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0px #00ff84, 0 0 0px #00f84;
+  }
+  50% {
+    box-shadow: 0 0 8px #00ff84, 0 0 12px #00ff84;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
