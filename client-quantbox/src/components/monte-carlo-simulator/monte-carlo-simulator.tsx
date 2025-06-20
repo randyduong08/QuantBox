@@ -9,6 +9,7 @@ import {
   fetchComparison,
   fetchConvergenceAnalysis,
   fetchMonteCarloSimulation,
+  fetchMonteCarloSimulationParallel,
 } from "@/services/monte-carlo-service";
 import {
   LineChart,
@@ -20,6 +21,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { Toggle } from "@/components/ui/toggle";
 
 interface MonteCarloParams {
   spotPrice: number;
@@ -40,6 +42,9 @@ const MonteCarloSimulator: React.FC = () => {
     numSimulations: 100000,
   });
 
+  const [isParallelizationEnabled, setParallelization] =
+    useState<boolean>(false);
+
   const [mcResult, setMcResult] = useState<MonteCarloResult | null>(null);
   const [comparison, setComparison] = useState<ComparisonResult | null>(null);
   const [convergence, setConvergence] = useState<ConvergenceResult | null>(
@@ -53,7 +58,9 @@ const MonteCarloSimulator: React.FC = () => {
 
   const runMonteCarloSimulation = async (): Promise<void> => {
     setLoading((prev) => ({ ...prev, mc: true }));
-    const result: MonteCarloResult = await fetchMonteCarloSimulation(params);
+    const result: MonteCarloResult = isParallelizationEnabled
+      ? await fetchMonteCarloSimulationParallel(params)
+      : await fetchMonteCarloSimulation(params);
     setMcResult(result);
     setLoading((prev) => ({ ...prev, mc: false }));
   };
@@ -231,6 +238,22 @@ const MonteCarloSimulator: React.FC = () => {
             >
               {loading.convergence ? "Analyzing..." : "Convergence Analysis"}
             </button>
+
+            <Toggle
+              defaultPressed={false}
+              onPressedChange={() =>
+                setParallelization(!isParallelizationEnabled)
+              }
+              className={`
+                px-6 py-2 rounded-md font-medium transition-colors shadow-sm
+                border border-gray-300
+                data-[state=off]:bg-white data-[state=off]:text-black data-[state=off]:hover:bg-green-100
+                data-[state=on]:bg-green-600 data-[state=on]:text-white data-[state=on]:hover:bg-green-700
+                hover:animate-[neon-pulse_1.2s_ease-in-out_infinite]
+              `}
+            >
+              Enable Parallelization (Monte Carlo only)
+            </Toggle>
           </div>
         </div>
 
