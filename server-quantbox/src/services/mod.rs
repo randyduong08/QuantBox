@@ -1,1 +1,3 @@
-mod market_data_service;
+pub mod market_data_service;
+
+pub use market_data_service::MarketDataService;

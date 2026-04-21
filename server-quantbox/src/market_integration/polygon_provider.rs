@@ -43,10 +43,10 @@ impl PolygonProvider {
             )));
         }
 
-        let json: T = response
-            .json()
-            .await
-            .map_err(|e| MarketDataError::ParseError(e.to_string()))?;
+        let json: T = response.json().await.map_err(|e| {
+            println!("failed to parse JSON response: {:?}", e);
+            MarketDataError::ParseError(e.to_string())
+        })?;
 
         Ok(json)
     }

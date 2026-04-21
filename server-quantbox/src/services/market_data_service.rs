@@ -6,7 +6,7 @@ use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
 pub struct MarketDataService {
-    provider: Box<dyn MarketDataProvider + Send + Sync>,
+    pub provider: Box<dyn MarketDataProvider + Send + Sync>,
     cache: HashMap<String, (StockQuote, DateTime<Utc>)>,
     cache_ttl_seconds: i64,
 }
@@ -44,11 +44,19 @@ impl MarketDataService {
         let quote: StockQuote = self.get_quote_cached(symbol).await?;
         let options: Vec<OptionsContract> = self.provider.get_options_chain(symbol, None).await?;
 
+        println!("QUOTE: {:?}", quote);
+        // println!("OPTIONS: {:?}", options);
+        println!("OPTIONS LENGTH: {}", options.len());
+
+        // TODO -- FIX, OPTIONS VAR WE'RE INITIALIZING HAS LIKE NOTHING FOR THE FIELDS, MAINLY IMPLIED VOLATILITY
+        // TODO -- LOOKS LIKE WE GOTTA FIX THE FIELD MATCHING FOR THE GET_OPTIONS_CHAIN FUNC IN MARKET_DATA_PROVIDER.RS...
+
         let mut points = Vec::new();
         for option in options {
             if let Some(iv) = option.implied_volatility {
                 let days_to_expiry: i64 =
                     (option.expiration_date - Utc::now().date_naive()).num_days();
+                println!("DAYS TO EXPIRY: {}", days_to_expiry);
                 if days_to_expiry > 0 {
                     points.push(VolatilityPoint {
                         strike: option.strike_price,
@@ -70,5 +78,3 @@ impl MarketDataService {
         })
     }
 }
-
-// TODO -- TESTS(?) + ADD ROUTES ENDPOINTS HANDLERS

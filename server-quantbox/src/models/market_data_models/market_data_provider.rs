@@ -27,19 +27,17 @@ impl MarketDataProvider for PolygonProvider {
     async fn get_quote(&self, symbol: &str) -> Result<StockQuote, MarketDataError> {
         let endpoint: String = format!("/v2/aggs/ticker/{}/prev", symbol);
         let response: PolygonQuoteResponse = self.make_request(&endpoint, &[]).await?;
-
-        match response.results {
-            Some(quote) => {
-                Ok(StockQuote {
-                    symbol: symbol.to_string(),
-                    price: quote.close.unwrap_or(0.0),
-                    bid: None, // prev day data doesn't include bid/ask
-                    ask: None,
-                    volume: quote.volume.map(|v| v as i64).unwrap_or(0),
-                    timestamp: Utc::now(),
-                })
-            }
-            None => Err(MarketDataError::InvalidSymbol),
+        if let Some(quote) = response.results.first() {
+            Ok(StockQuote {
+                symbol: symbol.to_string(),
+                price: quote.close,
+                bid: None,
+                ask: None,
+                volume: quote.volume as i64,
+                timestamp: Utc::now(),
+            })
+        } else {
+            Err(MarketDataError::InvalidSymbol)
         }
     }
 
@@ -109,7 +107,7 @@ impl MarketDataProvider for PolygonProvider {
             "/v2/aggs/ticker/{}/range/1/day/{}/{}",
             symbol,
             from.format("%Y-%m-%d"),
-            to.format("%H:%M:%S")
+            to.format("%Y-%m-%d")
         );
 
         let response: HistoricalResponse = self.make_request(&endpoint, &[]).await?;

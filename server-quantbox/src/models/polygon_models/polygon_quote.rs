@@ -1,19 +1,25 @@
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct PolygonQuote {
     #[serde(rename = "T")]
     pub symbol: String,
     #[serde(rename = "c")]
-    pub close: Option<f64>,
+    pub close: f64,
     #[serde(rename = "h")]
-    pub high: Option<f64>,
+    pub high: f64,
     #[serde(rename = "l")]
-    pub low: Option<f64>,
+    pub low: f64,
+    #[serde(rename = "o")]
+    pub open: f64,
     #[serde(rename = "v")]
-    pub volume: Option<f64>,
+    pub volume: f64,
+    #[serde(rename = "vw")]
+    pub volume_weighted: f64,
     #[serde(rename = "t")]
-    pub timestamp: Option<i64>,
+    pub timestamp: i64,
+    #[serde(rename = "n")]
+    pub transactions: i32,
 }
 
 #[derive(Deserialize)]
