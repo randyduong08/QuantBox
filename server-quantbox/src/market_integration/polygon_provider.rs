@@ -26,14 +26,32 @@ impl PolygonProvider {
     where
         T: for<'de> Deserialize<'de>,
     {
-        let mut url: String = format!("{}{}", self.base_url, endpoint);
-        let mut query_params = vec![("apikey", self.api_key.clone())];
+        let url: String = format!("{}{}", self.base_url, endpoint);
+        self.make_request_url(&url, params).await
+    }
+
+    pub(crate) async fn make_request_url<T>(
+        &self,
+        url: &str,
+        params: &[(&str, String)],
+    ) -> Result<T, MarketDataError>
+    where
+        T: for<'de> Deserialize<'de>,
+    {
+        let mut query_params = Vec::new();
+        if !url.to_ascii_lowercase().contains("apikey=") {
+            query_params.push(("apikey", self.api_key.clone()));
+        }
         query_params.extend_from_slice(params);
 
-        let response = self.client.get(&url).query(&query_params).send().await?;
+        let response = self.client.get(url).query(&query_params).send().await?;
 
         if response.status() == 429 {
             return Err(MarketDataError::RateLimited);
+        }
+
+        if response.status() == 403 {
+            return Err(MarketDataError::Forbidden);
         }
 
         if !response.status().is_success() {

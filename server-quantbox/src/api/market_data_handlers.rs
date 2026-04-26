@@ -1,5 +1,4 @@
 use crate::compute::monte_carlo_engine::MonteCarloEngine;
-use crate::models::black_scholes_models::OptionType;
 use crate::models::market_data_models::{
     ArbitrageOpportunity, HistoricalBar, MarketDataError, MarketDataSnapshot, MarketStatus,
     OptionChainSummary, OptionsChainResponse, OptionsContract, QuoteResponse, StockQuote,
@@ -14,7 +13,7 @@ use axum::{
     http::StatusCode,
     response::Json,
 };
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{NaiveDate, Utc};
 use std::collections::HashMap;
 use std::option::Option;
 use std::sync::Arc;
@@ -60,9 +59,7 @@ pub async fn get_options_chain(
 
     let quote_result: Result<StockQuote, MarketDataError> =
         service.get_quote_cached(&symbol.to_uppercase()).await;
-    // TODO -- abstract away provider.get_options_chain, so we don't have to keep provider public
     let options_result: Result<Vec<OptionsContract>, MarketDataError> = service
-        .provider
         .get_options_chain(&symbol.to_uppercase(), expiry_date)
         .await;
 
@@ -80,6 +77,9 @@ pub async fn get_options_chain(
         }
         (Err(MarketDataError::RateLimited), _) | (_, Err(MarketDataError::RateLimited)) => {
             Err(StatusCode::TOO_MANY_REQUESTS)
+        }
+        (Err(MarketDataError::Forbidden), _) | (_, Err(MarketDataError::Forbidden)) => {
+            Err(StatusCode::FORBIDDEN)
         }
         _ => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }
@@ -104,13 +104,13 @@ pub async fn get_historical_data(
         .unwrap_or_else(|| Utc::now().date_naive());
 
     match service
-        .provider
         .get_historical_data(&symbol.to_uppercase(), from_date, to_date)
         .await
     {
         Ok(bars) => Ok(Json(bars)),
         Err(MarketDataError::InvalidSymbol) => Err(StatusCode::NOT_FOUND),
         Err(MarketDataError::RateLimited) => Err(StatusCode::TOO_MANY_REQUESTS),
+        Err(MarketDataError::Forbidden) => Err(StatusCode::FORBIDDEN),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }
 }
@@ -129,6 +129,7 @@ pub async fn build_volatility_surface(
         Ok(surface) => Ok(Json(surface)),
         Err(MarketDataError::InvalidSymbol) => Err(StatusCode::NOT_FOUND),
         Err(MarketDataError::RateLimited) => Err(StatusCode::TOO_MANY_REQUESTS),
+        Err(MarketDataError::Forbidden) => Err(StatusCode::FORBIDDEN),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }
 }
@@ -165,16 +166,14 @@ pub async fn validate_monte_carlo_with_market_data(
     State(state): State<AppState>,
     Json(request): Json<MonteCarloValidationRequest>,
 ) -> Result<Json<MonteCarloValidationResponse>, StatusCode> {
-    let service: MutexGuard<MarketDataService> = state.market_data_service.lock().await;
+    let mut service: MutexGuard<MarketDataService> = state.market_data_service.lock().await;
 
     let quote: StockQuote = service
-        .provider
-        .get_quote(&request.symbol)
+        .get_quote_cached(&request.symbol)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let options: Vec<OptionsContract> = service
-        .provider
         .get_options_chain(&request.symbol, None)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;

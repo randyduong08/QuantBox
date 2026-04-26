@@ -3,6 +3,8 @@ import BlackScholesCalculator from "@/components/black-scholes-calculator/black-
 import { BlackScholesFields } from "@/types/black-scholes-fields";
 import { fetchOptionPrices } from "@/services/black-scholes-service";
 
+export const dynamic = "force-dynamic";
+
 export default async function BlackScholesPage() {
   // TODO -- WORK ON THIS -- MAKE NAVBAR BETTER, ETC -> IMPLEMENTING AS A SIDEBAR COMPONENT IN QUANTBOX-SIDERBAR, TO BE USED IN GLOBAL LAYOUT.
   // TODO -- CONT... SIDEBAR IS FOR GLOBAL STUFF, NAVBAR WILL BE FOR SPECIFIC SEMANTICALLY-RELATED STUFF

@@ -26,6 +26,11 @@ export function QuantboxSidebar(): JSX.Element {
       icon: "🃏",
     },
     {
+      label: "Market Data",
+      href: "/market-data",
+      icon: "📈",
+    },
+    {
       label: "Backtest",
       href: "/backtest",
       icon: "🅱",

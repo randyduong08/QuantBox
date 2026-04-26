@@ -1,6 +1,7 @@
 #[derive(Debug)]
 pub enum MarketDataError {
     ApiError(String),
+    Forbidden,
     RateLimited,
     InvalidSymbol,
     NetworkError(reqwest::Error),

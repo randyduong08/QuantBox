@@ -4,6 +4,8 @@ import OptionsHeatmap from "@/components/options-heatmap/options-heatmap";
 import { fetchHeatmapData } from "@/services/black-scholes-service";
 import { BlackScholesFields } from "@/types/black-scholes-fields";
 
+export const dynamic = "force-dynamic";
+
 export default async function HeatmapsVisualizationPage(): Promise<JSX.Element> {
   const defaultParams: BlackScholesFields = {
     spotPrice: 100,

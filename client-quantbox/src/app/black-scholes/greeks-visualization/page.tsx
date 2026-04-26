@@ -4,6 +4,8 @@ import GreeksCharts from "@/components/greeks-charts/greeks-charts";
 import { fetchGreeksPrices } from "@/services/black-scholes-service";
 import { BlackScholesFields, OptionType } from "@/types/black-scholes-fields";
 
+export const dynamic = "force-dynamic";
+
 export default async function GreeksVisualizationPage(): Promise<JSX.Element> {
   const defaultParams: BlackScholesFields = {
     spotPrice: 100,
