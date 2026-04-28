@@ -1,1 +1,15 @@
 /.idea/
+
+node_modules/
+.next/
+out/
+src-tauri/target/
+src-tauri/gen/
+src-tauri/.tauri/
+
+.env
+.env.*
+!.env.example
+
+.DS_Store
+Thumbs.db

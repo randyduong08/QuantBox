@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "QuantBox",
+  "version": "0.1.0",
+  "identifier": "com.quantbox.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:3000",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../out"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "QuantBox",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 960,
+        "minHeight": 640
+      }
+    ]
+  }
+}
